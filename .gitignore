@@ -1,0 +1,15 @@
+
+
+*.obj
+*.iobj
+*.tlog
+*.pdb
+*.idb
+*.ipdb
+*.exe.recipe
+*.dll
+*.log
+*.ilk
+.vs/*
+TheChernoSrc/OpenGl/.vs/*
+TheChernoSrc/OpenGl/Dependencies/*
