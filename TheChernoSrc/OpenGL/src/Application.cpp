@@ -120,6 +120,10 @@ int main(void)
         return -1;
     }
 
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
 
@@ -141,13 +145,17 @@ int main(void)
         2, 3, 0
     };
 
+    unsigned int vao; //holds the vertex array object i.e vao
+    GLCall(glGenVertexArrays(1, &vao));
+    GLCall(glBindVertexArray(vao));
+
     unsigned int buffer;
     GLCall(glGenBuffers(1, &buffer));
     GLCall(glBindBuffer(GL_ARRAY_BUFFER, buffer));
-    GLCall(glBufferData(GL_ARRAY_BUFFER, 6 * 2 * sizeof(float), positions, GL_STATIC_DRAW));
+    GLCall(glBufferData(GL_ARRAY_BUFFER, 4 * 2 * sizeof(float), positions, GL_STATIC_DRAW));
 
     GLCall(glEnableVertexAttribArray(0));
-    GLCall(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0));
+    GLCall(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0)); // Links the buffer to the vao
 
 
     unsigned int ibo;
@@ -163,6 +171,12 @@ int main(void)
     ASSERT(location != -1);
     GLCall(glUniform4f(location, 0.8f, 0.3f, 0.8f, 1.0f)); // set data in the shader
 
+
+    GLCall(glBindVertexArray(0));
+    GLCall(glUseProgram(0));
+    GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
+    GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+
     float r = 0.0f;
     float increment = 0.05f;
 
@@ -172,8 +186,13 @@ int main(void)
         /* Render here */
         GLCall(glClear(GL_COLOR_BUFFER_BIT));
 
+        GLCall(glUseProgram(shader)); // Binding shader
         GLCall(glUniform4f(location, r, 0.3f, 0.8f, 1.0f)); // set data in the shader
-        GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
+
+        GLCall(glBindVertexArray(vao));
+        GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo)); // Binding index buffer
+
+        GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr)); // issuing Draw Call
 
         if (r > 1.0f)
             increment = -0.05f;
