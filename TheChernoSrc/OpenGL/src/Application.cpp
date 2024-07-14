@@ -8,6 +8,7 @@
 
 #include "Renderer.h"
 #include "VertexBuffer.h"
+#include "VertexBufferLayout.h"
 #include "IndexBuffer.h"
 #include "VertexArray.h"
 #include "Shader.h"
@@ -56,11 +57,6 @@ int main(void)
             2, 3, 0
         };
 
-        unsigned int vao; //holds the vertex array object i.e vao
-        GLCall(glGenVertexArrays(1, &vao));
-        GLCall(glBindVertexArray(vao));
-
-
         VertexArray va;
         VertexBuffer vb(positions, 4 * 2 * sizeof(float));
 
@@ -68,9 +64,7 @@ int main(void)
         layout.Push<float>(2);
         va.AddBuffer(vb, layout);
 
-
         IndexBuffer ib(indices, 6);
-
 
         Shader shader("res/shaders/Basic.shader");
         shader.Bind(); // Binding my shader
@@ -82,23 +76,22 @@ int main(void)
         ib.Unbind();
         shader.UnBind();
 
+        Renderer renderer;
+
         float r = 0.0f;
         float increment = 0.05f;
 
         /* Loop until the user closes the window */
         while (!glfwWindowShouldClose(window))
         {
-            /* Render here */
-            GLCall(glClear(GL_COLOR_BUFFER_BIT));
+            // Rendering Here 
+            renderer.Clear();
 
             shader.Bind(); // Binding shader
             shader.SetUniform4f("u_color", r, 0.3f, 0.8f, 1.0f);
 
-            va.Bind();
-            ib.Bind(); // Binding index buffer
-
-            GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr)); // issuing Draw Call
-
+            renderer.Draw(va, ib, shader);
+            
             if (r > 1.0f)
                 increment = -0.05f;
             else if (r < 0.0f)
